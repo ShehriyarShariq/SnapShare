@@ -3,7 +3,9 @@ const { body } = require('express-validator')
 const {
   registerUser,
   loginUser,
+  getUserName,
   getShareableLink,
+  getGalleryFromShareableLink,
 } = require('../controllers/userController')
 const authMiddleware = require('../middlewares/authMiddleware')
 const validatorMiddleware = require('../middlewares/validatorMiddleware')
@@ -11,6 +13,10 @@ const validatorMiddleware = require('../middlewares/validatorMiddleware')
 const router = express.Router()
 
 const registerValidation = [
+  body('name')
+    .isLength({ min: 1 })
+    .withMessage('Please enter a valid name')
+    .trim(),
   body('email')
     .isEmail()
     .withMessage('Please enter a valid email address')
@@ -31,6 +37,8 @@ const loginValidation = [
 
 router.post('/register', registerValidation, validatorMiddleware, registerUser)
 router.post('/login', loginValidation, validatorMiddleware, loginUser)
+router.get('/name', getUserName)
 router.get('/gallery/shareable-link', authMiddleware, getShareableLink)
+router.get('/gallery/:userId', getGalleryFromShareableLink)
 
 module.exports = router

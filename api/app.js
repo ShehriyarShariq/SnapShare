@@ -2,12 +2,14 @@ const express = require('express')
 const mongoose = require('mongoose')
 const helmet = require('helmet')
 const cors = require('cors')
-const dotenv = require('dotenv')
+// const dotenv = require('dotenv')
+
+require('dotenv').config()
+
 const { errorHandler } = require('./middlewares/errorHandler')
 const userRoutes = require('./routes/userRoutes')
 const imageRoutes = require('./routes/imageRoutes')
 
-dotenv.config()
 const app = express()
 
 const MONGODB_URI = process.env.MONGODB_URI

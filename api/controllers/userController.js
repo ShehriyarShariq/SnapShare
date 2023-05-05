@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const Image = require('../models/Image')
 const {
   CognitoUserPool,
   CognitoUser,
@@ -13,11 +14,16 @@ const userPool = new CognitoUserPool({
 })
 
 exports.registerUser = async (req, res, next) => {
-  const { email, password } = req.body
+  const { name, email, password } = req.body
 
   try {
+    const attributes = [
+      new CognitoUserAttribute({ Name: 'email', Value: email }),
+      new CognitoUserAttribute({ Name: 'name', Value: name }),
+    ]
+
     await new Promise((resolve, reject) => {
-      userPool.signUp(email, password, [], null, (err, result) => {
+      userPool.signUp(email, password, attributes, null, (err, result) => {
         if (err) {
           reject(err)
         } else {
@@ -62,6 +68,42 @@ exports.loginUser = async (req, res, next) => {
   }
 }
 
+exports.getUserName = async (req, res, next) => {
+  const { user } = req
+
+  try {
+    const cognitoUser = new CognitoUser({
+      Username: user.email,
+      Pool: userPool,
+    })
+
+    cognitoUser.getSession(async (err, session) => {
+      if (err) {
+        next(err)
+        return
+      }
+
+      cognitoUser.getUserAttributes((err, result) => {
+        if (err) {
+          next(err)
+          return
+        }
+
+        const nameAttribute = result.find((attr) => attr.getName() === 'name')
+        const name = nameAttribute ? nameAttribute.getValue() : ''
+
+        res.status(200).json({
+          message: 'User name retrieved successfully.',
+          data: { name },
+        })
+      })
+    })
+  } catch (error) {
+    logger.error(`Error retrieving user name: ${error.message}`)
+    next(error)
+  }
+}
+
 exports.getShareableLink = async (req, res, next) => {
   const { user } = req
 
@@ -84,6 +126,32 @@ exports.getShareableLink = async (req, res, next) => {
     logger.info(`Shareable link generated: ${shareableLink}`)
   } catch (error) {
     logger.error(`Error generating shareable link: ${error.message}`)
+    next(error)
+  }
+}
+
+exports.getGalleryFromShareableLink = async (req, res, next) => {
+  const { userId } = req.params
+
+  try {
+    const images = await Image.find({ owner: userId })
+
+    if (!images) {
+      logger.warn(`No images found for user ID: ${userId}`)
+      return res.status(404).json({
+        message: 'No images found for this user.',
+      })
+    }
+
+    res.status(200).json({
+      message: 'Images retrieved successfully',
+      data: images,
+    })
+    logger.info(`Images retrieved successfully for user ID: ${userId}`)
+  } catch (error) {
+    logger.error(
+      `Error retrieving images for user ID: ${userId}, ${error.message}`,
+    )
     next(error)
   }
 }

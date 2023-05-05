@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: () => uuidv4(),
   },
+  name: {
+    type: String,
+    required: true,
+  },
   email: {
     type: String,
     required: true,
