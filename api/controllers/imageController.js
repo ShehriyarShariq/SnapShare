@@ -1,7 +1,12 @@
 const { S3 } = require('aws-sdk')
 const { v4: uuidv4 } = require('uuid')
+const User = require('../models/User')
 const Image = require('../models/Image')
 const logger = require('../logger')
+
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
+
 const { S3_BUCKET_NAME } = process.env
 
 const s3 = new S3()
@@ -49,15 +54,24 @@ exports.getGallery = async (req, res, next) => {
   const { user } = req
 
   try {
-    const images = await Image.find({ owner: user._id })
+    // Get the user from the database using the email
+    const userData = await User.findOne({ email: user.email })
+
+    if (!userData) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
+
+    const images = await Image.find({ owner: new ObjectId(userData._id) })
     res.status(200).json({
       message: 'Images retrieved successfully',
       data: images,
     })
-    logger.info(`Images retrieved for user: ${user._id}`)
+    logger.info(`Images retrieved for user: ${userData._id}`)
   } catch (error) {
     logger.error(
-      `Error retrieving images for user: ${user._id}, ${error.message}`,
+      `Error retrieving images for user: ${user.email}, ${error.message}`,
     )
     next(error)
   }

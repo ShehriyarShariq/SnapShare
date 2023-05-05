@@ -1,12 +1,21 @@
 const User = require('../models/User')
 const Image = require('../models/Image')
+const { CognitoIdentityServiceProvider } = require('aws-sdk')
 const {
   CognitoUserPool,
   CognitoUser,
   AuthenticationDetails,
+  CognitoUserAttribute,
 } = require('amazon-cognito-identity-js')
-const { COGNITO_USER_POOL_ID, COGNITO_APP_CLIENT_ID } = process.env
+const { AWS_REGION, COGNITO_USER_POOL_ID, COGNITO_APP_CLIENT_ID } = process.env
 const logger = require('../logger')
+
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
+
+const cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider({
+  region: AWS_REGION,
+})
 
 const userPool = new CognitoUserPool({
   UserPoolId: COGNITO_USER_POOL_ID,
@@ -31,6 +40,14 @@ exports.registerUser = async (req, res, next) => {
         }
       })
     })
+
+    // Save the user in the MongoDB database
+    const newUser = new User({
+      email,
+      name,
+    })
+
+    await newUser.save()
 
     res.status(201).json({ message: 'User registered successfully.' })
     logger.info(`User registered: ${email}`)
@@ -57,9 +74,22 @@ exports.loginUser = async (req, res, next) => {
       })
     })
 
+    // Get the user from the database using the email
+    const userData = await User.findOne({ email })
+
+    if (!userData) {
+      return res.status(404).json({
+        message: 'User not found',
+      })
+    }
+
+    // Include the user's _id from the database in the JWT token
+    const idToken = authResult.getIdToken().getJwtToken()
+
     res.status(200).json({
       message: 'User logged in successfully.',
-      idToken: authResult.getIdToken().getJwtToken(),
+      idToken,
+      id: userData._id,
     })
     logger.info(`User logged in: ${email}`)
   } catch (error) {
@@ -68,35 +98,61 @@ exports.loginUser = async (req, res, next) => {
   }
 }
 
-exports.getUserName = async (req, res, next) => {
-  const { user } = req
+exports.confirmRegistration = async (req, res, next) => {
+  const { email, code } = req.body
 
   try {
-    const cognitoUser = new CognitoUser({
-      Username: user.email,
-      Pool: userPool,
+    const cognitoUser = new CognitoUser({ Username: email, Pool: userPool })
+
+    await new Promise((resolve, reject) => {
+      cognitoUser.confirmRegistration(code, true, (err, result) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result)
+        }
+      })
     })
 
-    cognitoUser.getSession(async (err, session) => {
-      if (err) {
-        next(err)
-        return
-      }
+    res.status(200).json({ message: 'User registration confirmed.' })
+    logger.info(`User registration confirmed: ${email}`)
+  } catch (error) {
+    logger.error(
+      `Error confirming user registration: ${email}, ${error.message}`,
+    )
+    next(error)
+  }
+}
 
-      cognitoUser.getUserAttributes((err, result) => {
-        if (err) {
-          next(err)
-          return
-        }
+exports.getUserName = async (req, res, next) => {
+  const { userId } = req.params
 
-        const nameAttribute = result.find((attr) => attr.getName() === 'name')
-        const name = nameAttribute ? nameAttribute.getValue() : ''
+  console.log(userId)
 
-        res.status(200).json({
-          message: 'User name retrieved successfully.',
-          data: { name },
-        })
+  try {
+    const user = await User.findById(userId)
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
       })
+    }
+
+    const result = await cognitoIdentityServiceProvider
+      .adminGetUser({
+        UserPoolId: COGNITO_USER_POOL_ID,
+        Username: user.email,
+      })
+      .promise()
+
+    const nameAttribute = result.UserAttributes.find(
+      (attr) => attr.Name === 'name',
+    )
+    const name = nameAttribute ? nameAttribute.Value : ''
+
+    res.status(200).json({
+      message: 'User name retrieved successfully.',
+      data: { name },
     })
   } catch (error) {
     logger.error(`Error retrieving user name: ${error.message}`)
@@ -108,7 +164,7 @@ exports.getShareableLink = async (req, res, next) => {
   const { user } = req
 
   try {
-    const userData = await User.findById(user.sub)
+    const userData = await User.findOne({ email: user.email })
 
     if (!userData) {
       return res.status(404).json({
@@ -116,9 +172,9 @@ exports.getShareableLink = async (req, res, next) => {
       })
     }
 
-    const shareableLink = `${req.protocol}://${req.get(
-      'host',
-    )}/api/v1/users/gallery/${userData._id}`
+    const shareableLink = `${req.protocol}://${req.get('host')}/gallery/${
+      userData._id
+    }`
     res.status(200).json({
       message: 'Shareable link generated successfully',
       data: { shareableLink },
@@ -134,7 +190,9 @@ exports.getGalleryFromShareableLink = async (req, res, next) => {
   const { userId } = req.params
 
   try {
-    const images = await Image.find({ owner: userId })
+    const images = await Image.find({
+      owner: ObjectId.createFromHexString(userId),
+    })
 
     if (!images) {
       logger.warn(`No images found for user ID: ${userId}`)

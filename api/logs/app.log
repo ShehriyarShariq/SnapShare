@@ -1,0 +1,36 @@
+[2023-05-05T05:49:25.850Z] ERROR: Error registering user: shehriyarshariq@gmail.com, CognitoUserAttribute is not defined
+[2023-05-05T05:56:05.480Z] ERROR: Error registering user: shehriyarshariq@gmail.com, Client 7fdkvi7o3e7n5ca7fkthukdt6u is configured with secret but SECRET_HASH was not received
+[2023-05-05T06:00:36.540Z] ERROR: Error registering user: shehriyarshariq@gmail.com, Client 7fdkvi7o3e7n5ca7fkthukdt6u is configured with secret but SECRET_HASH was not received
+[2023-05-05T06:01:28.136Z] ERROR: Error registering user: shehriyarshariq@gmail.com, Unexpected field type
+[2023-05-05T06:02:46.667Z] ERROR: Error registering user: shehriyarshariq@gmail.com, Client 7fdkvi7o3e7n5ca7fkthukdt6u is configured with secret but SECRET_HASH was not received
+[2023-05-05T06:03:52.068Z] ERROR: Error registering user: shehriyarshariq@gmail.com, Start of structure or map found where not expected
+[2023-05-05T06:06:18.942Z] ERROR: Error registering user: shehriyarshariq@gmail.com, Client 7fdkvi7o3e7n5ca7fkthukdt6u is configured with secret but SECRET_HASH was not received
+[2023-05-05T06:09:57.258Z] INFO: User registered: shehriyarshariq@gmail.com
+[2023-05-05T06:14:44.394Z] INFO: User registration confirmed: shehriyarshariq@gmail.com
+[2023-05-05T06:15:29.043Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T06:20:58.669Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T06:25:18.369Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T06:30:58.213Z] ERROR: Error logging in user: shehriyarshariq@gmail.com, userData is not defined
+[2023-05-05T06:31:44.023Z] ERROR: Error logging in user: shehriyarshariq@gmail.com, userData is not defined
+[2023-05-05T06:32:02.958Z] ERROR: Error registering user: shehriyarshariq@gmail.com, An account with the given email already exists.
+[2023-05-05T06:34:53.753Z] INFO: User registered: shehriyarshariq@gmail.com
+[2023-05-05T06:35:06.581Z] INFO: User registration confirmed: shehriyarshariq@gmail.com
+[2023-05-05T06:35:16.007Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T06:35:41.362Z] ERROR: Error retrieving user name: Missing required key 'Username' in params
+[2023-05-05T06:38:42.138Z] ERROR: Error logging in user: shehriyarshariq@gmail.com, jwt is not defined
+[2023-05-05T06:40:11.063Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T06:40:58.312Z] ERROR: Error retrieving user name: Missing required key 'Username' in params
+[2023-05-05T06:51:58.368Z] ERROR: Error retrieving user name: User: arn:aws:iam::182436607261:user/APIUser is not authorized to perform: cognito-idp:AdminGetUser on resource: arn:aws:cognito-idp:us-east-1:182436607261:userpool/us-east-1_fUcaLXh1f because no identity-based policy allows the cognito-idp:AdminGetUser action
+[2023-05-05T06:54:50.974Z] ERROR: Error retrieving user name: User: arn:aws:iam::182436607261:user/APIUser is not authorized to perform: cognito-idp:AdminGetUser on resource: arn:aws:cognito-idp:us-east-1:182436607261:userpool/us-east-1_fUcaLXh1f because no identity-based policy allows the cognito-idp:AdminGetUser action
+[2023-05-05T06:56:50.168Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T06:59:13.434Z] INFO: Shareable link generated: http://localhost:3000/gallery/572cf6c4-8bf3-41c5-8825-58fb6db6e724
+[2023-05-05T07:07:19.573Z] ERROR: Error retrieving images for user ID: 572cf6c4-8bf3-41c5-8825-58fb6db6e724, Cast to ObjectId failed for value "572cf6c4-8bf3-41c5-8825-58fb6db6e724" (type string) at path "owner" for model "Image"
+[2023-05-05T07:14:24.647Z] ERROR: Error retrieving images for user ID: 572cf6c4-8bf3-41c5-8825-58fb6db6e724, Class constructor ObjectId cannot be invoked without 'new'
+[2023-05-05T07:14:50.648Z] ERROR: Error retrieving images for user ID: 572cf6c4-8bf3-41c5-8825-58fb6db6e724, Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer
+[2023-05-05T08:03:32.604Z] ERROR: Error retrieving images for user ID: 572cf6c4-8bf3-41c5-8825-58fb6db6e724, userId.toHexString is not a function
+[2023-05-05T08:07:11.675Z] ERROR: Error retrieving images for user ID: 572cf6c4-8bf3-41c5-8825-58fb6db6e724, hex string must be 24 characters
+[2023-05-05T08:10:20.816Z] INFO: User registered: shehriyarshariq@gmail.com
+[2023-05-05T08:10:32.217Z] INFO: User registration confirmed: shehriyarshariq@gmail.com
+[2023-05-05T08:10:40.302Z] INFO: User logged in: shehriyarshariq@gmail.com
+[2023-05-05T08:11:14.998Z] INFO: Shareable link generated: http://localhost:3000/gallery/6454b9ec90bc02180f87e747
+[2023-05-05T08:12:12.114Z] INFO: Images retrieved successfully for user ID: 6454b9ec90bc02180f87e747

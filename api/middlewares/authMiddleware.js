@@ -1,5 +1,17 @@
 const jwt = require('jsonwebtoken')
+const jwksClient = require('jwks-rsa')
 const { COGNITO_USER_POOL_ID, COGNITO_APP_CLIENT_ID } = process.env
+
+const client = jwksClient({
+  jwksUri: `https://cognito-idp.us-east-1.amazonaws.com/${COGNITO_USER_POOL_ID}/.well-known/jwks.json`,
+})
+
+function getKey(header, callback) {
+  client.getSigningKey(header.kid, (err, key) => {
+    const signingKey = key.publicKey || key.rsaPublicKey
+    callback(null, signingKey)
+  })
+}
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization
@@ -12,10 +24,8 @@ const authMiddleware = (req, res, next) => {
 
   jwt.verify(
     token,
-    `https://cognito-idp.us-east-1.amazonaws.com/${COGNITO_USER_POOL_ID}/.well-known/jwks.json`,
-    {
-      audience: COGNITO_APP_CLIENT_ID,
-    },
+    getKey,
+    { audience: COGNITO_APP_CLIENT_ID },
     (err, decoded) => {
       if (err) {
         return res.status(401).json({ message: 'Invalid or expired token.' })

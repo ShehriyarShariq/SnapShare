@@ -6,6 +6,7 @@ const {
   getUserName,
   getShareableLink,
   getGalleryFromShareableLink,
+  confirmRegistration,
 } = require('../controllers/userController')
 const authMiddleware = require('../middlewares/authMiddleware')
 const validatorMiddleware = require('../middlewares/validatorMiddleware')
@@ -35,9 +36,23 @@ const loginValidation = [
   body('password').not().isEmpty().withMessage('Password is required').trim(),
 ]
 
+const confirmRegistrationValidation = [
+  body('email')
+    .isEmail()
+    .withMessage('Please enter a valid email address')
+    .normalizeEmail(),
+  body('code').isLength({ min: 6 }).withMessage('Password is required').trim(),
+]
+
 router.post('/register', registerValidation, validatorMiddleware, registerUser)
 router.post('/login', loginValidation, validatorMiddleware, loginUser)
-router.get('/name', getUserName)
+router.post(
+  '/confirm-registration',
+  confirmRegistrationValidation,
+  validatorMiddleware,
+  confirmRegistration,
+)
+router.get('/name/:userId', getUserName)
 router.get('/gallery/shareable-link', authMiddleware, getShareableLink)
 router.get('/gallery/:userId', getGalleryFromShareableLink)
 
